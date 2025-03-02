@@ -64,7 +64,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'seistron'
-copyright = "2024, Earl Patrick Bellinger"
+copyright = "2025, Earl Patrick Bellinger"
 author = "Earl Patrick Bellinger"
 
 # The version info for the project you're documenting, acts as replacement
