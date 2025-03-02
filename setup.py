@@ -42,6 +42,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/earlbellinger/seistron',
-    version='0.0.1', # bump version here, in requirements_dev.txt, and in pyproject.toml
+    version='0.0.2', # bump version here, in requirements_dev.txt, and in pyproject.toml
     zip_safe=False,
 )

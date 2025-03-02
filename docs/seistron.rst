@@ -12,6 +12,7 @@ Subpackages
    seistron.hpc
    seistron.models
    seistron.sample
+   seistron.utils
    seistron.visualize
 
 Module contents
