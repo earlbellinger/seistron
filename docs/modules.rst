@@ -1,5 +1,5 @@
-Modules
-=======
+seistron
+========
 
 .. toctree::
    :maxdepth: 4
