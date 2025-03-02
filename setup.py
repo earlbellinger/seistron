@@ -31,7 +31,7 @@ setup(
         'Topic :: Scientific/Engineering :: Astronomy',
         'Topic :: Scientific/Engineering :: Physics'
     ],
-    description="Parse grids of MESA tracks and models",
+    description="An open-science package for stellar phenomenology",
     install_requires=requirements,
     license="MIT license",
     long_description=readme,# + '\n\n' + history,
