@@ -9,6 +9,7 @@ Subpackages
 
    seistron.data
    seistron.emulate
+   seistron.hpc
    seistron.models
    seistron.sample
    seistron.visualize
