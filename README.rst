@@ -21,7 +21,7 @@ an open-science package for stellar phenomenology.
 Links
 =====
 
-* `Landing Page <https://seistron.readthedocs.io/en/latest/>`__ for links to all things Seistron.
+* `Landing Page <https://seistron.readthedocs.io/en/latest/>`__ for links to all things seistron.
 
 
 Download
