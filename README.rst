@@ -16,3 +16,22 @@ seistron
 
 Stellar Evolution and Internal Structures from vaRiability with Optimized Neural networks:
 an open-science package for stellar phenomenology. 
+
+
+Links
+=====
+
+* `Landing Page <https://seistron.readthedocs.io/en/latest/>`__ for links to all things seistron.
+
+
+Download
+========
+
+* `MESA Official Release Version <https://zenodo.org/records/13353788>`__ for the latest release of MESA.
+* `MESA SDK <http://user.astro.wisc.edu/~townsend/static.php?ref=mesasdk>`__ for: `MacOS (ARM) <https://zenodo.org/records/13769017>`__, `MacOS (Intel) <https://zenodo.org/records/13768941>`__, `Linux (Intel/AMD) <https://zenodo.org/records/13768913>`__.
+
+
+For Developers
+==============
+
+
