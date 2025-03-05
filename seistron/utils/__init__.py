@@ -16,3 +16,6 @@ from .read_parquet import *
 from .slice_h5_files import *
 from .slice_h5_files_SUBP import *
 from .slice_parquet import *
+from .fns_for_sampler import *
+from .fns_for_lininterp import *
+from .fns_for_knninterp import *
