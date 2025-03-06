@@ -4,7 +4,7 @@ import pyarrow.csv as pc
 import numpy as np
 
 # Define input/output file paths
-base_dir = "/home/ng474/seistron/prelim_data/"
+base_dir = "../prelim_data/"
 input_file = base_dir + "ms-pi.parquet"
 
 # Check command-line arguments

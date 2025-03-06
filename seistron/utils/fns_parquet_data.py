@@ -1,3 +1,12 @@
+
+"""
+These functions were used with the parquet data when at some point 
+I was using a NN for interpolation. I don't think these are used at 
+the moment, so I'll leave off writing documentation for them
+for now...
+"""
+
+
 import numpy as np
 import pandas as pd
 import os

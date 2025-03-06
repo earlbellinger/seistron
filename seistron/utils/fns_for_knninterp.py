@@ -7,7 +7,7 @@ import sys
 import os
 
 
-def knn_interpolator(grid_data, test_points, n_neighbors=5, weights='distance'):
+def knn_interpolator(grid_data, test_points, n_neighbors=20, weights='distance'):
     """
     Perform KNN regression to estimate (Teff, L, delta_nu, nu_max) given (M, Y, Z, alpha, fov_core, fov_shell).
     
@@ -31,7 +31,7 @@ def knn_interpolator(grid_data, test_points, n_neighbors=5, weights='distance'):
     # Predict values for test points
     return knn.predict(test_points)
 
-def evaluate_knn_accuracy(grid_data, test_points, true_values, n_neighbors=5, weights='distance'):
+def evaluate_knn_accuracy(grid_data, test_points, true_values, n_neighbors=20, weights='distance'):
     """
     Evaluate the accuracy of the KNN interpolation function using Mean Absolute Error (MAE).
 
@@ -92,11 +92,11 @@ def knn_grid_search(grid_data, test_points, true_values, neighbor_values=[2, 3, 
 
             # Extract training input and output
             train_X = train_data[['M', 'Y', 'Z', 'alpha', 'fov0_core', 'fov0_shell']].values
-            train_Y = train_data[['Teff', 'luminosity', 'delta_nu_fit', 'nu_max']].values
+            train_Y = train_data[['Fe_H', 'Teff', 'luminosity', 'delta_nu_fit', 'nu_max']].values
 
             # Extract validation input and output
             val_X = val_data[['M', 'Y', 'Z', 'alpha', 'fov0_core', 'fov0_shell']].values
-            val_Y = val_data[['Teff', 'luminosity', 'delta_nu_fit', 'nu_max']].values
+            val_Y = val_data[['Fe_H', 'Teff', 'luminosity', 'delta_nu_fit', 'nu_max']].values
 
             # Train kNN model
             knn = KNeighborsRegressor(n_neighbors=n_neighbors)
@@ -133,7 +133,7 @@ def knn_grid_search2(grid_data, neighbor_values=[2, 3, 5, 10, 15, 20], cv_folds=
     Returns:
         dict: The best n_neighbors value and corresponding MAE for each output variable.
     """
-    target_columns = ['Teff', 'luminosity', 'delta_nu_fit', 'nu_max']  # Explicitly define targets
+    target_columns = ['Fe_H', 'Teff', 'luminosity', 'delta_nu_fit', 'nu_max']  # Explicitly define targets
     best_n = {col: None for col in target_columns}
     best_mae = {col: float('inf') for col in target_columns}
     mae_results = {n: {col: [] for col in target_columns} for n in neighbor_values}

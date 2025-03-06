@@ -23,7 +23,7 @@ import seaborn as sns
 from fns_to_read_parquet import extract_numbers
 from fns_parquet_data import nu_max, nanloss, save_model, plot_density_results
 import file_manager
-from file_manager import get_new_filename
+from file_manager import get_new_filename, list_parquet_files
 
 from solar_funcs import preprocess_solar_data, combine_obs_data
 
@@ -37,25 +37,15 @@ As long as the parquet file exists, then this should work (and it does)!
 
 Modified get_model_tracks.py script.
 
+
+THIS SCRIPT PROBABLY SHOULD BE OPTIMIZED BEFORE USE!
+
 -------------------------------------------------------------------------
 Naomi Gluck | Yale University 2024
 """
 
-base_dir = "/home/ng474/seistron/parquets/"
+base_dir = "../parquets/"
 
-def list_parquet_files(directory):
-    """List all Parquet files in the specified directory."""
-    try:
-        files = [f for f in os.listdir(directory) if f.endswith('.parquet')]
-        if files:
-            print("Parquet files in the directory:")
-            for file in files:
-                print(file)
-        else:
-            print("No Parquet files found in the directory.")
-    except Exception as e:
-        print(f"Error accessing the directory: {directory}")
-        print(e)
 
 # ==================== terminal inputs ======================
 
@@ -147,7 +137,7 @@ epochs = []
 best_state = None
 min_val_loss = float('inf')
 
-csv_base_dir = '/home/ng474/seistron/parquet_losses/'
+csv_base_dir = '../parquet_losses/'
 csv_filename = get_new_filename(csv_base_dir+'training_log_%s.csv'%(sys.argv[1]))
 print("Writing nn losses to:", csv_filename)
 
@@ -206,7 +196,7 @@ y_val_rescaled = y_scaler.inverse_transform(y_val)
 y_pred_rescaled = y_scaler.inverse_transform(y_pred)
 
 # --------------------- figures --------------------------
-figure_base_dir = '/home/ng474/seistron/plots/'
+figure_base_dir = '../plots/'
 
 plt.figure(figsize=(6, 4))
 plt.plot(epochs, train_losses, label='Training Loss')
@@ -247,24 +237,4 @@ plot_masked_freqs = plot_density_results(y_val_nu_max_masked, y_pred_nu_max_mask
 
 print(">>> Max. Frequency plots done! >>>", plot_masked_freqs)
 
-'''
-print("=========== SOLAR DATA: ============")
-
-solar_basedir = '/home/ng474/seistron/'
-
-data_sun = pd.read_csv(solar_basedir+'sun_data/Sun-freqs.dat', sep='\\s+')
-data_sun['nu_l_n'] = 'nu_' + data_sun['l'].astype(str) + '_' + data_sun['n'].astype(str)
-print("Sun-freqs.dat:",data_sun.head())
-
-obs_sun = pd.read_csv(solar_basedir+'sun_data/Sun-obs.dat', sep='\\s+')
-obs_sun = obs.replace('Fe/H', 'Fe_H')
-print("Sun-obs.dat:",obs_sun)
-
-# ----------- Preprocessing ------------
-processed_solar_freqs = preprocess_solar_data(data_sun, y.columns)
-combined_data = combine_obs_data(processed_solar_freqs, obs_sun, y.columns)
-
-print("processed solar freqs:", processed_solar_freqs)
-print("combined data:", combined_data)
-'''
 

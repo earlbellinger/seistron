@@ -17,6 +17,22 @@ from fns_for_knninterp import knn_interpolator
 rng_key = jax.random.PRNGKey(42)
 
 def check_grid_bounds(grid_data, param_bounds):
+    """
+    Checks whether the given parameter bounds fall within the range of a provided grid.
+
+    Parameters:
+    -----------
+    grid_data : pandas.DataFrame or array-like
+        A dataset representing the grid, where each column corresponds to a parameter.
+    param_bounds : list of tuples
+        A list of (min, max) tuples specifying the allowed bounds for each parameter.
+
+    Returns:
+    --------
+    bool
+        Returns True if all parameter bounds are within the grid range, otherwise False.
+
+    """
     grid_min = np.min(grid_data.to_numpy(), axis=0)  # Ensure NumPy array
     grid_max = np.max(grid_data.to_numpy(), axis=0)
 
@@ -34,7 +50,24 @@ def check_grid_bounds(grid_data, param_bounds):
 
 
 def check_grid_coverage(grid_data, param_bounds, n_samples=100):
-    """Check if the grid can interpolate across all parameter ranges."""
+    """
+    Check if the grid can interpolate across all parameter ranges.
+
+    Parameters:
+    -----------
+    grid_data : pandas.DataFrame or array-like
+        The dataset representing the grid, where each column corresponds to a parameter.
+    param_bounds : list of tuples
+        A list of (min, max) tuples specifying the range for each parameter.
+    n_samples : int, optional
+        The number of random samples to test within the parameter bounds (default is 100).
+
+    Returns:
+    --------
+    bool
+        Returns True if all sampled parameter points can be interpolated without NaN values,
+        otherwise False.
+    """
     test_samples = np.random.uniform(
         [low for low, high in param_bounds],
         [high for low, high in param_bounds],
@@ -55,6 +88,34 @@ def check_grid_coverage(grid_data, param_bounds, n_samples=100):
 
 
 def log_likelihood(params, grid_data, observed_values, obs_errors, param_bounds, interp_type="linear"):
+    """
+    Computes the log-likelihood of a given parameter set by comparing interpolated
+    model predictions with observed values using a chi-squared statistic.
+
+    Parameters:
+    -----------
+    params : array-like
+        A list or array of parameter values for which to evaluate the likelihood.
+    grid_data : pandas.DataFrame or array-like
+        The dataset representing the model grid, where each row corresponds to a parameter set.
+    observed_values : array-like
+        The observed data values to be compared against the model.
+    obs_errors : array-like
+        The uncertainties (errors) associated with each observed value.
+    param_bounds : list of tuples
+        A list of (min, max) tuples specifying the valid range for each parameter.
+    interp_type : str, optional
+        The interpolation method to use, either "linear" (default) or "knn".
+        - "linear": Uses `linear_interpolator2` for interpolation.
+        - "knn": Uses `knn_interpolator` with `n_neighbors=20` and distance-based weights.
+
+    Returns:
+    --------
+    float
+        The log-likelihood value, computed as (-0.5 * chi2), where chi2 is the chi-squared statistic.
+        If any parameter is out of bounds or the interpolation returns NaN values, (-inf) is returned.
+
+    """
     test_point = np.array(params).reshape(1, -1)  # Single point for interpolation
     for i, (low, high) in enumerate(param_bounds):
         if params[i] < low or params[i] > high:
@@ -82,40 +143,57 @@ def log_likelihood(params, grid_data, observed_values, obs_errors, param_bounds,
     return -0.5 * chi2
 
 
-def log_likelihood_old(params, grid_data, observed_values, obs_errors):
-    test_point = np.array(params).reshape(1, -1)  # Single point for interpolation
-    interpolated_values = linear_interpolator2(grid_data, test_point)[0]
-    
-    # If interpolation fails (NaNs), return a very low likelihood
-    if np.any(np.isnan(interpolated_values)):
-        return -np.inf  
-
-    # Compute log-likelihood assuming Gaussian errors
-    chi2 = np.sum(((observed_values - interpolated_values) / obs_errors) ** 2)
-    return -0.5 * chi2
 
 def log_prior(params, param_bounds):
+    """
+    Computes the log-prior probability for a given set of parameters.
+
+    Parameters:
+    -----------
+    params : array-like
+        A list or array of parameter values.
+    param_bounds : list of tuples
+        A list of (min, max) tuples specifying the valid range for each parameter.
+
+    Returns:
+    --------
+    float
+        Returns 0.0 if all parameters are within the specified bounds (uniform prior).
+        Returns -inf if any parameter is out of bounds, indicating rejection.
+    """
     for i, (low, high) in enumerate(param_bounds):
         if params[i] < low or params[i] > high:
             return -np.inf  # Reject out-of-bounds samples
     return 0.0  # Uniform prior (valid values)
 
 
-def log_prior_old(params, param_bounds):
-    for p, (low, high) in zip(params, param_bounds):
-        if not (low <= p <= high):
-            return -np.inf  # Outside bounds
-    return 0  # Uniform prior
-
-# Define the full posterior function
-def log_posterior_old(params, grid_data, observed_values, obs_errors, param_bounds):
-    lp = log_prior(params, param_bounds)
-    if not np.isfinite(lp):
-        return -np.inf
-    return lp + log_likelihood(params, grid_data, observed_values, obs_errors)
-
-
 def log_posterior(params, grid_data, observed_values, obs_errors, param_bounds, interp_type="linear"):
+    """
+    Computes the log-posterior probability for a given set of parameters, combining
+    the log-prior and log-likelihood.
+
+    Parameters:
+    -----------
+    params : array-like
+        A list or array of parameter values.
+    grid_data : pandas.DataFrame or array-like
+        The dataset representing the model grid, where each row corresponds to a parameter set.
+    observed_values : array-like
+        The observed data values to be compared against the model.
+    obs_errors : array-like
+        The uncertainties (errors) associated with each observed value.
+    param_bounds : list of tuples
+        A list of (min, max) tuples specifying the valid range for each parameter.
+    interp_type : str, optional
+        The interpolation method to use, either "linear" (default) or "knn".
+
+    Returns:
+    --------
+    float
+        The log-posterior value, computed as `log_prior + log_likelihood`.
+        Returns -inf if the parameters are out of bounds, the likelihood is invalid,
+        or the prior is invalid.
+    """
     # Ensure all parameters are within bounds
     for i, (low, high) in enumerate(param_bounds):
         if not (low <= params[i] <= high):
@@ -144,28 +222,46 @@ def log_posterior(params, grid_data, observed_values, obs_errors, param_bounds, 
 
 
 def run_mcmc(grid_data, observed_values, obs_errors, param_bounds, interp_type="linear", n_walkers=50, n_steps=2000):
+    """
+    Computes the log-posterior probability for a given set of parameters, combining
+    the log-prior and log-likelihood.
+
+    Parameters:
+    -----------
+    params : array-like
+        A list or array of parameter values.
+    grid_data : pandas.DataFrame or array-like
+        The dataset representing the model grid, where each row corresponds to a parameter set.
+    observed_values : array-like
+        The observed data values to be compared against the model.
+    obs_errors : array-like
+        The uncertainties (errors) associated with each observed value.
+    param_bounds : list of tuples
+        A list of (min, max) tuples specifying the valid range for each parameter.
+    interp_type : str, optional
+        The interpolation method to use, either "linear" (default) or "knn".
+
+    Returns:
+    --------
+    float
+        The log-posterior value, computed as `log_prior + log_likelihood`.
+        Returns -inf if the parameters are out of bounds, the likelihood is invalid,
+        or the prior is invalid.
+    """
     ndim = len(param_bounds)  # Number of parameters
     
     # Initialize walkers around a random point within the parameter bounds
 
     param_bounds = np.array(param_bounds)
 
-    #p0 = np.random.uniform([low for low, high in param_bounds],
-    #                    [high for low, high in param_bounds],
-    #                    size=(n_walkers, ndim))
-    p0_center = (param_bounds[:, 0] + param_bounds[:, 1]) / 2  # Midpoint
-    p0_scale = (param_bounds[:, 1] - param_bounds[:, 0]) * 0.1  # Small perturbation
-
+    p0_center = (param_bounds[:, 0] + param_bounds[:, 1]) / 2
+    p0_scale = (param_bounds[:, 1] - param_bounds[:, 0]) * 0.05
     p0 = np.random.uniform(p0_center - p0_scale, p0_center + p0_scale, size=(n_walkers, ndim))
 
     for i in range(ndim):
         low, high = param_bounds[i]
         if np.any(p0[:, i] < low) or np.any(p0[:, i] > high):
             print(f"WARNING: Parameter {i} out of bounds in p0!")
-
-
-    #print("Initial parameters (p0):", p0)
-    #print("Min/Max of p0:", np.min(p0, axis=0), np.max(p0, axis=0))
 
     
     sampler = emcee.EnsembleSampler(n_walkers, ndim, log_posterior, 
@@ -177,92 +273,3 @@ def run_mcmc(grid_data, observed_values, obs_errors, param_bounds, interp_type="
 
 
 
-# ----- below are functions for the original sampler.py script... -----
-"""
-def get_likelihood(star_model, data, data_std, datanuids, gridnuids, nukey="nu"):
-
-    '''
-    Setup a jifty likelihood using the imported data. The output of the emulator
-    is truncated and ordered for nu according to the input data.
-    '''
-
-
-    def ninv(x):
-        return x / jft.Vector(data_std)
-
-    # Filter and sort data for nu on grid according to measured nus
-    ids = list(np.where((gridnuids == dd).prod(axis=1))[0][0] for dd in datanuids)
-    ids = np.array(ids)
-
-    class Response(jft.Model):
-        def __init__(self):
-            super().__init__(init=star_model.init)
-
-        def __call__(self, x):
-            res = star_model(x)
-            res[nukey] = res[nukey][ids]
-            return jft.Vector(res)
-
-    return jft.Gaussian(data=jft.Vector(data), noise_std_inv=ninv).amend(Response())
-
-def truncated_powerlaw_icdf(z, alpha, xmin, xmax):
-    frac = (xmax / xmin) ** (alpha - 1)
-    return xmax / ((z + (1.0 - z) * frac) ** (1 / (alpha - 1)))
-
-def myemulator(**kwargs):
-    # Placeholder to emulate some dependency of res on x and ensure correct output shape
-    res = data.copy()
-    res["nu"] *= kwargs["Z"]
-    return res
-
-def run_sampler(
-    likelihood,
-    key,
-    N_Samples,
-    N_Warmup,
-    initial_position=None,
-    sampler=blackjax.nuts,
-    progress_bar=False,
-):
-    # Setup the logpdf from jifty
-    def logdensity(x):
-        return -(likelihood(x) + 0.5 * jft.vdot(x, x))
-
-    if initial_position is None:
-        key, init_key = jax.random.split(key)
-        initial_position = likelihood.init(init_key)
-    # run warmup for mass matrix and stepsize adaptation using stan warmup
-    warmup = blackjax.window_adaptation(sampler, logdensity, progress_bar=progress_bar)
-    key, warmup_key, sample_key = jax.random.split(key, 3)
-    (state, parameters), _ = warmup.run(
-        warmup_key, initial_position, num_steps=int(N_Warmup)
-    )
-
-    kernel = sampler(logdensity, **parameters).step
-
-    # define sampling loop to run with samplingparameters now fixed
-    def inference_loop(rng_key, kernel, initial_state, num_samples):
-        def one_step(state, params):
-            _, rng_key = params
-            state, _ = kernel(rng_key, state)
-            return state, state
-
-        if progress_bar:
-            print("Running NUTS sampler")
-            one_step_ = jax.jit(
-                blackjax.progress_bar.progress_bar_scan(num_samples)(one_step)
-            )
-        else:
-            one_step_ = jax.jit(one_step)
-
-        keys = jax.random.split(rng_key, num_samples)
-        _, states = jax.lax.scan(
-            one_step_, initial_state, (jnp.arange(num_samples), keys)
-        )
-        return states
-
-    states = inference_loop(sample_key, kernel, state, int(N_Samples))
-    # Turn blackjax samples into jifty samples to use tree math for models
-    samples = jft.Samples(samples=states.position)
-    return samples, states
-"""

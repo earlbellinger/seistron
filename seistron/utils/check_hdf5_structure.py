@@ -1,6 +1,7 @@
 
 '''
-To show the entire HDF5 file structure.
+To show the entire HDF5 file structure. This assumes you already have
+a full or sliced h5 file created.
 '''
 
 import h5py
@@ -14,9 +15,9 @@ breakpoint = sys.argv[1]
 nrows = sys.argv[2]
 
 if nrows == '':
-    input_h5_file = "/home/ng474/seistron/hdf5/pre-run-%s.hdf5"%breakpoint
+    input_h5_file = "../hdf5/pre-run-%s.hdf5"%breakpoint
 else:
-    input_h5_file = "/home/ng474/seistron/hdf5/%s_%s_rows.hdf5"%(breakpoint, nrows)
+    input_h5_file = "../hdf5/%s_%s_rows.hdf5"%(breakpoint, nrows)
 
 # Open the file and list all the groups and datasets
 with h5py.File(input_h5_file, 'r') as f:

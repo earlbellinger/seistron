@@ -7,9 +7,12 @@ import numpy as np
 from data_loader_hdf5 import *
 
 
-BASE_DIR = "/home/ng474/seistron/hdf5/"
+BASE_DIR = "../hdf5/"
 
 def test_data_loader(filename, dataset_name, batch_size=32):
+    """A function to test the dataloader script.
+    
+    Input: filename (full path) """
     print("\n=== Starting DataLoader Test ===")
     
     # 1. First verify the H5 file exists and is readable

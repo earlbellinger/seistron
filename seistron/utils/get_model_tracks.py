@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 import os
 
+from file_manager import list_parquet_files
 """
 A general script to read SLICED .parquet files based on stellar evolution
 conditions for ms, red-giant, etc.
@@ -13,21 +14,8 @@ DO NOT MODIFY THIS SCRIPT, MAKE A COPY FIRST!
 Naomi Gluck | Yale University 2024
 """
 
-base_dir = "/home/ng474/seistron/parquets/"
+base_dir = "../parquets/"
 
-def list_parquet_files(directory):
-    """List all Parquet files in the specified directory."""
-    try:
-        files = [f for f in os.listdir(directory) if f.endswith('.parquet')]
-        if files:
-            print("Parquet files in the directory:")
-            for file in files:
-                print(file)
-        else:
-            print("No Parquet files found in the directory.")
-    except Exception as e:
-        print(f"Error accessing the directory: {directory}")
-        print(e)
 
 if len(sys.argv) < 2:
     print("Usage: python load_and_save_column.py 1) filename (without base_dir or .parquet)")

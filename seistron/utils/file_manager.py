@@ -1,7 +1,24 @@
+
+"""
+Functions to manage input data files.
+"""
+
+
+
 import os
 import argparse
 
 def get_new_filename(filename):
+    """
+    If the given input filename already exists, the
+    funuction will append a numerical value to the end
+    of the filename before the .filetype (e.g. .png). Each time 
+    the associated script is run, the file produced will have
+    an increasing (by 1) numerical index to avoid overwriting the file.
+
+    Input: filename.png (str)
+    Output: filename_1.png (str)
+    """
     base, ext = os.path.splitext(filename)
     counter = 1
     new_filename = f"{base}_{counter}{ext}"
@@ -11,6 +28,14 @@ def get_new_filename(filename):
     return new_filename
 
 def check_and_get_filename(filename):
+    """
+    A function to check if a certain file exists, and asks the user
+    if they wish to overwrite the existing file or create a new file
+    under a new filename with an appended numerical index.
+
+    Input: filename.png (str)
+    Output: either filename.png or filename_1.png (str)
+    """
     if os.path.isfile(filename):
         print(f"The file '{filename}' already exists.")
         response = input("Do you want to overwrite it? (yes/no): ").strip().lower()

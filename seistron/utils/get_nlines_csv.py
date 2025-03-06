@@ -1,5 +1,10 @@
 import pandas as pd
 
+"""
+Obviously, this hasn't been made into a real script yet...
+"""
+
+
 # Load the CSV file
 input_file = "/home/ng474/seistron/prelim_data/data_classical.csv"
 output_file = "/home/ng474/seistron/prelim_data/data_classical_first_5000_rows.csv"
