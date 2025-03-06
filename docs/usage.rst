@@ -10,3 +10,4 @@ To use seistron in a project::
    :maxdepth: 1
 
    preliminaries
+   examples/red_giants
