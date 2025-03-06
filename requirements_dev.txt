@@ -8,4 +8,5 @@ Sphinx==7.3.7
 twine==1.14.0
 myst_nb==1.1.0
 sphinxawesome-theme==5.2.0
+jupyterlab_myst==2.4.2
 seistron>=0.0.2
