@@ -3,7 +3,7 @@ import jax.numpy as jnp
 
 
 class TransformerBlock(nn.Module):
-    nonlinearity: nn.Module
+    activation_fn: nn.Module
     model_dim: int
     num_heads: int
     feed_forward_dim: int
@@ -20,7 +20,7 @@ class TransformerBlock(nn.Module):
         x = x + nn.Sequential([
             nn.LayerNorm(),
             nn.Dense(self.feed_forward_dim),
-            nn.nonlinearity,
+            activation_fn,
             nn.Dense(self.model_dim)
         ])(x)
 
@@ -38,7 +38,7 @@ class FiLMGenerator(nn.Module):
 
 
 class EmbeddingTransformerBlock(nn.Module):
-    nonlinearity: nn.Module
+    activation_fn: nn.Module
     model_dim: int
     num_heads: int
     feed_forward_dim: int
@@ -56,7 +56,7 @@ class EmbeddingTransformerBlock(nn.Module):
         x = x + nn.Sequential([
             nn.LayerNorm(),
             nn.Dense(self.feed_forward_dim),
-            nn.nonlinearity,
+            activation_fn,
             nn.Dense(self.model_dim)
         ])(x)
 
