@@ -17,7 +17,7 @@ def test_simple_quadratic_model():
         model=model,
         model_kwargs=model_kwargs,
         optimizer_kwargs=optimizer_kwargs
-    )
+    ).x
     assert jnp.allclose(result, 5.0, atol=1e-5)
 
 def test_model_with_keyword_arguments():
@@ -34,7 +34,7 @@ def test_model_with_keyword_arguments():
         model=model,
         model_kwargs=model_kwargs,
         optimizer_kwargs=optimizer_kwargs
-    )
+    ).x
     assert jnp.allclose(result, 2.0, atol=1e-5)
 
 def test_multidimensional_input():
@@ -51,5 +51,5 @@ def test_multidimensional_input():
         model=model,
         model_kwargs=model_kwargs,
         optimizer_kwargs=optimizer_kwargs
-    )
+    ).x
     assert jnp.allclose(result, jnp.array([2.0, 3.0]), atol=1e-5)

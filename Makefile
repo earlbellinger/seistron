@@ -53,7 +53,7 @@ lint/flake8: ## check style with flake8
 lint: lint/flake8 ## check style
 
 test: ## run tests quickly with the default Python
-	python setup.py test
+	pytest -v
 
 test-all: ## run tests on every Python version with tox
 	tox
@@ -78,8 +78,8 @@ servedocs: docs ## compile the docs watching for changes
 release: dist ## package and upload a release
 	twine upload dist/*
 
-pip: ## build and upload to pip 
-	make dist 
+pip: ## build and upload to pip
+	make dist
 	python3 -m twine upload dist/*
 
 dist: clean ## builds source and wheel package

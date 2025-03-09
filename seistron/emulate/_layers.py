@@ -3,16 +3,16 @@ import jax.numpy as jnp
 
 
 class TransformerBlock(nn.Module):
-    activation_fn: nn.Module
     model_dim: int
     num_heads: int
     feed_forward_dim: int
+    activation_fn: nn.Module
 
     @nn.compact
     def __call__(self, x):
         x_norm = nn.LayerNorm()(x)
 
-        attn = nn.SelfAttention(
+        attn = nn.MultiHeadDotProductAttention(
                 num_heads=self.num_heads,
                 qkv_features=self.model_dim)(x_norm)
         x = x + attn
@@ -20,7 +20,7 @@ class TransformerBlock(nn.Module):
         x = x + nn.Sequential([
             nn.LayerNorm(),
             nn.Dense(self.feed_forward_dim),
-            activation_fn,
+            self.activation_fn,
             nn.Dense(self.model_dim)
         ])(x)
 
@@ -38,17 +38,17 @@ class FiLMGenerator(nn.Module):
 
 
 class EmbeddingTransformerBlock(nn.Module):
-    activation_fn: nn.Module
     model_dim: int
     num_heads: int
     feed_forward_dim: int
+    activation_fn: nn.Module
 
     @nn.compact
     def __call__(self, x, phase_embed):
         x = jnp.concatenate([x, phase_embed], axis=-1)
         x = nn.Dense(self.model_dim)(x)
 
-        attn = nn.SelfAttention(
+        attn = nn.MultiHeadDotProductAttention(
                 num_heads=self.num_heads,
                 qkv_features=self.model_dim)(x)
         x = x + attn
@@ -56,7 +56,7 @@ class EmbeddingTransformerBlock(nn.Module):
         x = x + nn.Sequential([
             nn.LayerNorm(),
             nn.Dense(self.feed_forward_dim),
-            activation_fn,
+            self.activation_fn,
             nn.Dense(self.model_dim)
         ])(x)
 
