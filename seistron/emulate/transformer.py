@@ -1,7 +1,10 @@
 from ._layers import TransformerBlock
 import jax.numpy as jnp
 import flax.linen as nn
-
+# Type hints
+from jax.typing import ArrayLike
+from jax import Array
+Module = nn.Module
 
 class Transformer(nn.Module):
     num_layers: int
@@ -9,10 +12,11 @@ class Transformer(nn.Module):
     num_heads: int
     ff_dim: int
     output_dim: int
-    activation_fn: nn.Module
+    activation_fn: Module
 
     @nn.compact
-    def __call__(self, x):
+    def __call__(self, x: ArrayLike) -> Array:
+        """Args: x (batch_size, input_dim). Returns: (batch_size, output_dim)."""
         x = nn.Dense(self.model_dim)(x)
         for _ in range(self.num_layers):
             x = TransformerBlock(self.model_dim,
@@ -29,7 +33,7 @@ class EmbeddingTransformer(nn.Module):
     model_dim: int
     num_heads: int
     ff_dim: int
-    activation_fn: nn.Module
+    activation_fn: Module
     sequence_length: int = 100
 
     def setup(self):
@@ -41,7 +45,8 @@ class EmbeddingTransformer(nn.Module):
         self.output_proj = nn.Dense(1)
 
     @nn.compact
-    def __call__(self, x):
+    def __call__(self, x: ArrayLike) -> Array:
+        """Args: x (batch_size, input_dim). Returns: (batch_size, output_dim)."""
         x = self.feature_proj(x)
         # Expand to sequence length and add positional encoding
         x = jnp.repeat(x[:, jnp.newaxis, :], self.sequence_length, axis=1)

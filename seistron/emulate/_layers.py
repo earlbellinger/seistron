@@ -2,6 +2,7 @@ import flax.linen as nn
 import jax.numpy as jnp
 
 
+# TODO: add type hints
 class TransformerBlock(nn.Module):
     model_dim: int
     num_heads: int
@@ -28,6 +29,10 @@ class TransformerBlock(nn.Module):
 
 
 class FiLMGenerator(nn.Module):
+    """
+    Feature wise Linear Modulation
+    Reference: https://arxiv.org/abs/1709.07871
+    """
     model_dim: int
 
     @nn.compact
