@@ -114,3 +114,6 @@ jupyter_execute/
 *.smod
 photos/
 star
+
+data/full_data
+
