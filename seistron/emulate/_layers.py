@@ -1,21 +1,21 @@
 import flax.linen as nn
 import jax.numpy as jnp
+Module = nn.Module
 
 
 # TODO: add type hints
-class TransformerBlock(nn.Module):
+class TransformerBlock(Module):
     model_dim: int
     num_heads: int
     feed_forward_dim: int
-    activation_fn: nn.Module
+    activation_fn: Module
 
     @nn.compact
     def __call__(self, x):
         x_norm = nn.LayerNorm()(x)
 
-        attn = nn.MultiHeadDotProductAttention(
-                num_heads=self.num_heads,
-                qkv_features=self.model_dim)(x_norm)
+        attn = nn.MultiHeadDotProductAttention(num_heads=self.num_heads,
+                                               qkv_features=self.model_dim)(x_norm)
         x = x + attn
 
         x = x + nn.Sequential([
@@ -42,26 +42,24 @@ class FiLMGenerator(nn.Module):
         return gamma, beta
 
 
-class EmbeddingTransformerBlock(nn.Module):
+class PhaseAwareTransformerBlock(Module):
     model_dim: int
     num_heads: int
-    feed_forward_dim: int
-    activation_fn: nn.Module
+    ff_dim: int
 
     @nn.compact
     def __call__(self, x, phase_embed):
         x = jnp.concatenate([x, phase_embed], axis=-1)
         x = nn.Dense(self.model_dim)(x)
 
-        attn = nn.MultiHeadDotProductAttention(
-                num_heads=self.num_heads,
-                qkv_features=self.model_dim)(x)
+        attn = nn.MultiHeadDotProductAttention(num_heads=self.num_heads,
+                                               qkv_features=self.model_dim)(x)
         x = x + attn
 
         x = x + nn.Sequential([
             nn.LayerNorm(),
-            nn.Dense(self.feed_forward_dim),
-            self.activation_fn,
+            nn.Dense(self.ff_dim),
+            nn.gelu,
             nn.Dense(self.model_dim)
         ])(x)
 
