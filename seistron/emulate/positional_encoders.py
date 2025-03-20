@@ -35,8 +35,7 @@ class SinusoidalPositionalEncoder(BasePosEncoder):
     @nn.compact
     def __call__(self, inputs: jnp.ndarray, **kwargs) -> jnp.ndarray:
         position = jnp.arange(self.sequence_length)[jnp.newaxis, :]
-        div_term = jnp.exp(jnp.arange(0, self.model_dim, 2) *
-                           (-jnp.log(10000.0) / self.model_dim))
+        div_term = jnp.exp(jnp.arange(0, self.model_dim, 2) * (-jnp.log(10000.0) / self.model_dim))
         pos_enc = jnp.zeros((1, self.sequence_length, self.model_dim))
         pos_enc = pos_enc.at[:, :, 0::2].set(jnp.sin(position * div_term))
         pos_enc = pos_enc.at[:, :, 1::2].set(jnp.cos(position * div_term))

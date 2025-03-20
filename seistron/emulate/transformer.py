@@ -23,7 +23,6 @@ class Transformer(Module):
         Returns:
             (batch_size, output_dim)
         """
-
         x = nn.Dense(self.model_dim)(x)
         for _ in range(self.num_layers):
             x = TransformerBlock(self.model_dim,
@@ -85,7 +84,6 @@ class FiLMPhaseAwareTransformer(Module):
                                              nn.Dense(self.model_dim)
                                              ])
         self.phase_encoder = nn.Dense(self.model_dim)
-
         self.film_generators = [FiLMGenerator(self.model_dim) for _ in range(self.num_layers)]
         self.blocks = [PhaseAwareTransformerBlock(self.model_dim, self.num_heads, self.ff_dim) for _ in range(self.num_layers)]
         self.output_proj = nn.Dense(1)
@@ -97,17 +95,12 @@ class FiLMPhaseAwareTransformer(Module):
         Returns:
             (batch_size, output_dim)
         """
-
         batch_size = static_inputs.shape[0]
-
         static_embed = self.static_encoder(static_inputs)
-
         phases = jnp.linspace(0, 1, self.sequence_length)
         phase_embed = self.phase_encoder(phases[None, :, None])
         phase_embed = jnp.repeat(phase_embed, batch_size, axis=0)
-
         x = jnp.zeros((batch_size, self.sequence_length, self.model_dim))
-
         for i in range(self.num_layers):
             gamma, beta = self.film_generators[i](static_embed)
             x = self.blocks[i](x, phase_embed)
